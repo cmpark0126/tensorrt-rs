@@ -148,243 +148,243 @@ pub struct BaseLayer {
     pub(crate) internal_layer: *mut nvinfer1_ILayer,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::builder::{Builder, NetworkBuildFlags};
-    use crate::dims::DimsCHW;
-    use crate::engine::DataType;
-    use crate::network::Network;
-    use crate::runtime::Logger;
-    use crate::uff::{UffFile, UffInputOrder, UffParser};
-    use lazy_static::lazy_static;
-    use std::env::current_dir;
-    use std::path::Path;
-    use std::sync::Mutex;
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use crate::builder::{Builder, NetworkBuildFlags};
+//     use crate::dims::DimsCHW;
+//     use crate::engine::DataType;
+//     use crate::network::Network;
+//     use crate::runtime::Logger;
+//     use crate::uff::{UffFile, UffInputOrder, UffParser};
+//     use lazy_static::lazy_static;
+//     use std::env::current_dir;
+//     use std::path::Path;
+//     use std::sync::Mutex;
 
-    lazy_static! {
-        static ref LOGGER: Mutex<Logger> = Mutex::new(Logger::new());
-    }
+//     lazy_static! {
+//         static ref LOGGER: Mutex<Logger> = Mutex::new(Logger::new());
+//     }
 
-    fn create_network(logger: &Logger) -> Network {
-        let builder = Builder::new(logger);
-        builder.create_network_v2(NetworkBuildFlags::DEFAULT)
-    }
+//     fn create_network(logger: &Logger) -> Network {
+//         let builder = Builder::new(logger);
+//         builder.create_network_v2(NetworkBuildFlags::DEFAULT)
+//     }
 
-    fn create_network_from_uff(logger: &Logger) -> Network {
-        let builder = Builder::new(&logger);
-        let network = builder.create_network_v2(NetworkBuildFlags::DEFAULT);
+//     fn create_network_from_uff(logger: &Logger) -> Network {
+//         let builder = Builder::new(&logger);
+//         let network = builder.create_network_v2(NetworkBuildFlags::DEFAULT);
 
-        let uff_parser = UffParser::new();
-        let dim = DimsCHW::new(1, 28, 28);
+//         let uff_parser = UffParser::new();
+//         let dim = DimsCHW::new(1, 28, 28);
 
-        uff_parser
-            .register_input("in", dim, UffInputOrder::Nchw)
-            .unwrap();
-        uff_parser.register_output("out").unwrap();
-        println!("{}", current_dir().unwrap().display());
-        let uff_file = UffFile::new(Path::new("../assets/lenet5.uff")).unwrap();
-        uff_parser.parse(&uff_file, &network).unwrap();
+//         uff_parser
+//             .register_input("in", dim, UffInputOrder::Nchw)
+//             .unwrap();
+//         uff_parser.register_output("out").unwrap();
+//         println!("{}", current_dir().unwrap().display());
+//         let uff_file = UffFile::new(Path::new("../assets/lenet5.uff")).unwrap();
+//         uff_parser.parse(&uff_file, &network).unwrap();
 
-        network
-    }
+//         network
+//     }
 
-    #[test]
-    fn get_type() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
+//     #[test]
+//     fn get_type() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
 
-        let layer = network.get_layer(1);
-        assert_eq!(layer.get_type(), LayerType::Convolution);
-    }
+//         let layer = network.get_layer(1);
+//         assert_eq!(layer.get_type(), LayerType::Convolution);
+//     }
 
-    #[test]
-    fn set_name() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
+//     #[test]
+//     fn set_name() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
 
-        let layer = network.get_layer(1);
-        assert_eq!(layer.get_name(), "conv1");
-        layer.set_name("first_conv");
-        assert_eq!(layer.get_name(), "first_conv");
-    }
+//         let layer = network.get_layer(1);
+//         assert_eq!(layer.get_name(), "conv1");
+//         layer.set_name("first_conv");
+//         assert_eq!(layer.get_name(), "first_conv");
+//     }
 
-    #[test]
-    fn get_name() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
+//     #[test]
+//     fn get_name() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
 
-        let layer = network.get_layer(1);
-        assert_eq!(layer.get_name(), "conv1");
-    }
+//         let layer = network.get_layer(1);
+//         assert_eq!(layer.get_name(), "conv1");
+//     }
 
-    #[test]
-    fn get_nb_inputs() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
+//     #[test]
+//     fn get_nb_inputs() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
 
-        let layer = network.get_layer(1);
+//         let layer = network.get_layer(1);
 
-        assert_eq!(layer.get_nb_inputs(), 1);
-    }
+//         assert_eq!(layer.get_nb_inputs(), 1);
+//     }
 
-    #[test]
-    fn get_nb_outputs() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
-        let layer = network.get_layer(1);
+//     #[test]
+//     fn get_nb_outputs() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
+//         let layer = network.get_layer(1);
 
-        assert_eq!(layer.get_nb_outputs(), 1);
-    }
+//         assert_eq!(layer.get_nb_outputs(), 1);
+//     }
 
-    #[test]
-    fn get_output() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
-        let layer = network.get_layer(1);
+//     #[test]
+//     fn get_output() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
+//         let layer = network.get_layer(1);
 
-        assert_eq!(layer.get_output(0).get_name(), "conv1");
-    }
+//         assert_eq!(layer.get_output(0).get_name(), "conv1");
+//     }
 
-    #[test]
-    fn set_input() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let uff_network = create_network_from_uff(&logger);
-        let output_tensor = uff_network.get_layer(21).get_output(0);
+//     #[test]
+//     fn set_input() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let uff_network = create_network_from_uff(&logger);
+//         let output_tensor = uff_network.get_layer(21).get_output(0);
 
-        let network = create_network(&logger);
-        let tensor = network.add_input("new_input", DataType::Float, DimsCHW::new(1, 28, 28));
-        let layer = network.add_identity_layer(&tensor);
+//         let network = create_network(&logger);
+//         let tensor = network.add_input("new_input", DataType::Float, DimsCHW::new(1, 28, 28));
+//         let layer = network.add_identity_layer(&tensor);
 
-        assert_eq!(layer.get_input(0).get_name(), "new_input");
-        layer.set_input(0, &output_tensor);
-        assert_eq!(layer.get_input(0).get_name(), "matmul2");
-    }
+//         assert_eq!(layer.get_input(0).get_name(), "new_input");
+//         layer.set_input(0, &output_tensor);
+//         assert_eq!(layer.get_input(0).get_name(), "matmul2");
+//     }
 
-    #[test]
-    fn get_precision() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
-        let layer = network.get_layer(1);
+//     #[test]
+//     fn get_precision() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
+//         let layer = network.get_layer(1);
 
-        assert_eq!(layer.get_precision(), DataType::Float);
-    }
+//         assert_eq!(layer.get_precision(), DataType::Float);
+//     }
 
-    #[test]
-    fn set_precision() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
-        let layer = network.get_layer(1);
+//     #[test]
+//     fn set_precision() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
+//         let layer = network.get_layer(1);
 
-        layer.set_precision(DataType::Half);
-        assert_eq!(layer.get_precision(), DataType::Half);
-    }
+//         layer.set_precision(DataType::Half);
+//         assert_eq!(layer.get_precision(), DataType::Half);
+//     }
 
-    #[test]
-    fn precision_is_set_true() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
-        let layer = network.get_layer(1);
-        layer.set_precision(DataType::Half);
+//     #[test]
+//     fn precision_is_set_true() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
+//         let layer = network.get_layer(1);
+//         layer.set_precision(DataType::Half);
 
-        assert_eq!(layer.precision_is_set(), true);
-    }
+//         assert_eq!(layer.precision_is_set(), true);
+//     }
 
-    #[test]
-    fn precision_is_set_false() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
-        let layer = network.get_layer(1);
+//     #[test]
+//     fn precision_is_set_false() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
+//         let layer = network.get_layer(1);
 
-        assert_eq!(layer.precision_is_set(), false);
-    }
+//         assert_eq!(layer.precision_is_set(), false);
+//     }
 
-    #[test]
-    fn reset_precision() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
-        let layer = network.get_layer(1);
+//     #[test]
+//     fn reset_precision() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
+//         let layer = network.get_layer(1);
 
-        layer.set_precision(DataType::Half);
-        assert_eq!(layer.precision_is_set(), true);
-        layer.reset_precision();
-        assert_eq!(layer.precision_is_set(), false);
-    }
+//         layer.set_precision(DataType::Half);
+//         assert_eq!(layer.precision_is_set(), true);
+//         layer.reset_precision();
+//         assert_eq!(layer.precision_is_set(), false);
+//     }
 
-    #[test]
-    fn set_output_type() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
-        let layer = network.get_layer(1);
+//     #[test]
+//     fn set_output_type() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
+//         let layer = network.get_layer(1);
 
-        layer.set_output_type(0, DataType::Half);
-        assert_eq!(layer.get_output_type(0), DataType::Half);
-    }
+//         layer.set_output_type(0, DataType::Half);
+//         assert_eq!(layer.get_output_type(0), DataType::Half);
+//     }
 
-    #[test]
-    fn output_type_is_set() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
-        let layer = network.get_layer(1);
+//     #[test]
+//     fn output_type_is_set() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
+//         let layer = network.get_layer(1);
 
-        layer.set_output_type(0, DataType::Half);
-        assert_eq!(layer.output_type_is_set(0), true);
-    }
+//         layer.set_output_type(0, DataType::Half);
+//         assert_eq!(layer.output_type_is_set(0), true);
+//     }
 
-    #[test]
-    fn rest_output_type() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network_from_uff(&logger);
-        let layer = network.get_layer(1);
+//     #[test]
+//     fn rest_output_type() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network_from_uff(&logger);
+//         let layer = network.get_layer(1);
 
-        layer.set_output_type(0, DataType::Half);
-        assert_eq!(layer.output_type_is_set(0), true);
-        layer.rest_output_type(0);
-        assert_eq!(layer.output_type_is_set(0), false);
-    }
-}
+//         layer.set_output_type(0, DataType::Half);
+//         assert_eq!(layer.output_type_is_set(0), true);
+//         layer.rest_output_type(0);
+//         assert_eq!(layer.output_type_is_set(0), false);
+//     }
+// }

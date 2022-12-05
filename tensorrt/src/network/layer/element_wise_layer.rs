@@ -34,61 +34,61 @@ impl ElementWiseLayer {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::builder::{Builder, NetworkBuildFlags};
-    use crate::dims::DimsHW;
-    use crate::network::Network;
-    use crate::runtime::Logger;
-    use lazy_static::lazy_static;
-    use std::sync::Mutex;
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use crate::builder::{Builder, NetworkBuildFlags};
+//     use crate::dims::DimsHW;
+//     use crate::network::Network;
+//     use crate::runtime::Logger;
+//     use lazy_static::lazy_static;
+//     use std::sync::Mutex;
 
-    lazy_static! {
-        static ref LOGGER: Mutex<Logger> = Mutex::new(Logger::new());
-    }
+//     lazy_static! {
+//         static ref LOGGER: Mutex<Logger> = Mutex::new(Logger::new());
+//     }
 
-    fn create_network(logger: &Logger) -> Network {
-        let builder = Builder::new(logger);
-        builder.create_network_v2(NetworkBuildFlags::EXPLICIT_BATCH)
-    }
+//     fn create_network(logger: &Logger) -> Network {
+//         let builder = Builder::new(logger);
+//         builder.create_network_v2(NetworkBuildFlags::EXPLICIT_BATCH)
+//     }
 
-    #[test]
-    fn get_operation() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network(&logger);
+//     #[test]
+//     fn get_operation() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network(&logger);
 
-        let input1 = network.add_input("new_input1", DataType::Float, DimsHW::new(1, 1));
-        let input2 = network.add_input("new_input2", DataType::Float, DimsHW::new(1, 1));
-        let element_wise_layer =
-            network.add_element_wise_layer(&input1, &input2, ElementWiseOperation::Sum);
+//         let input1 = network.add_input("new_input1", DataType::Float, DimsHW::new(1, 1));
+//         let input2 = network.add_input("new_input2", DataType::Float, DimsHW::new(1, 1));
+//         let element_wise_layer =
+//             network.add_element_wise_layer(&input1, &input2, ElementWiseOperation::Sum);
 
-        assert_eq!(
-            element_wise_layer.get_operation(),
-            ElementWiseOperation::Sum
-        );
-    }
+//         assert_eq!(
+//             element_wise_layer.get_operation(),
+//             ElementWiseOperation::Sum
+//         );
+//     }
 
-    #[test]
-    fn set_operation() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let network = create_network(&logger);
+//     #[test]
+//     fn set_operation() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
+//         let network = create_network(&logger);
 
-        let input1 = network.add_input("new_input1", DataType::Float, DimsHW::new(1, 1));
-        let input2 = network.add_input("new_input2", DataType::Float, DimsHW::new(1, 1));
-        let element_wise_layer =
-            network.add_element_wise_layer(&input1, &input2, ElementWiseOperation::Sum);
-        element_wise_layer.set_operation(ElementWiseOperation::Prod);
+//         let input1 = network.add_input("new_input1", DataType::Float, DimsHW::new(1, 1));
+//         let input2 = network.add_input("new_input2", DataType::Float, DimsHW::new(1, 1));
+//         let element_wise_layer =
+//             network.add_element_wise_layer(&input1, &input2, ElementWiseOperation::Sum);
+//         element_wise_layer.set_operation(ElementWiseOperation::Prod);
 
-        assert_eq!(
-            element_wise_layer.get_operation(),
-            ElementWiseOperation::Prod
-        );
-    }
-}
+//         assert_eq!(
+//             element_wise_layer.get_operation(),
+//             ElementWiseOperation::Prod
+//         );
+//     }
+// }

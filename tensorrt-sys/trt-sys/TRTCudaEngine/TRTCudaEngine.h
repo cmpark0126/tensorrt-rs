@@ -23,7 +23,6 @@ nvinfer1::Dims engine_get_binding_dimensions(nvinfer1::ICudaEngine *engine, int 
 DataType_t engine_get_binding_data_type(nvinfer1::ICudaEngine *engine, int binding_index);
 int engine_get_max_batch_size(nvinfer1::ICudaEngine *engine);
 int engine_get_nb_layers(nvinfer1::ICudaEngine *engine);
-size_t engine_get_workspace_size(nvinfer1::ICudaEngine *engine);
 nvinfer1::IHostMemory* engine_serialize(nvinfer1::ICudaEngine* engine);
 TensorLocation_t engine_get_location(nvinfer1::ICudaEngine *engine, int binding_index);
 size_t engine_get_device_memory_size(nvinfer1::ICudaEngine *engine);

@@ -14,15 +14,13 @@ fn create_engine(
     logger: &Logger,
     file: OnnxFile,
     batch_size: i32,
-    workspace_size: usize,
+    _workspace_size: usize,
 ) -> Engine {
     let builder = Builder::new(&logger);
-    builder.set_max_workspace_size(1 * GB);
     let network = builder.create_network_v2(NetworkBuildFlags::EXPLICIT_BATCH);
     let verbosity = 7;
 
     builder.set_max_batch_size(batch_size);
-    builder.set_max_workspace_size(workspace_size);
 
     let parser = OnnxParser::new(&network, &logger);
     parser.parse_from_file(&file, verbosity).unwrap();
@@ -42,7 +40,7 @@ fn main() {
     let input_image = image::open("../assets/images/meme.jpg")
         .unwrap()
         .crop(0, 0, 100, 100)
-        .into_rgb();
+        .into_rgb8();
     eprintln!("Image dimensions: {:?}", input_image.dimensions());
 
     // Convert image to ndarray

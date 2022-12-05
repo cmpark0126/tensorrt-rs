@@ -76,6 +76,20 @@ fn main() -> Result<(), ()> {
         bindings.write_to_file("src/bindings.rs").unwrap();
     }
 
+    #[cfg(feature = "trt-8")]
+    {
+        println!("Setting Config to TRT8");
+        cfg.define("TRT8", "");
+        let bindings = builder()
+            .clang_arg("-DTRT8")
+            .clang_args(&["-x", "c++"])
+            .header("trt-sys/tensorrt_api.h")
+            .size_t_is_usize(true)
+            .generate()?;
+
+        bindings.write_to_file("src/bindings.rs").unwrap();
+    }
+
     let dst = cfg.build();
     println!("cargo:rustc-link-search=native={}", dst.display());
     println!("cargo:rustc-link-lib=static=trt-sys");

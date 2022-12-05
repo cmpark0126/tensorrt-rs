@@ -9,13 +9,15 @@ repository = "https://github.com/mstallmo/tensorrt-rs"
 description = "Low level wrapper around Nvidia's TensorRT library"
 
 [features]
-default = []
+default = ["trt-8"]
 
 trt-5 = []
 
 trt-6 = []
 
 trt-7 = []
+
+trt-8 = []
 
 [dependencies]
 libc = "0.*"

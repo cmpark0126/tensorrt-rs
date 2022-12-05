@@ -8,7 +8,7 @@ edition = "2018"
 description = "Rust library for using Nvidia's TensorRT deep learning acceleration library"
 
 [features]
-default = ["trt-7"]
+default = ["trt-8"]
 
 trt-5 = ["tensorrt-sys/trt-5"]
 
@@ -16,13 +16,14 @@ trt-6 = ["tensorrt-sys/trt-6"]
 
 trt-7 = ["tensorrt-sys/trt-7"]
 
+trt-8 = ["tensorrt-sys/trt-8"]
 
 [dependencies]
 # Uncomment when working locally
-#tensorrt-sys = { path = "../tensorrt-sys" }
-tensorrt-sys = { git = "https://github.com/mstallmo/tensorrt-rs", branch = "develop" }
-#tensorrt_rs_derive = { path = "../tensorrt_rs_derive" }
-tensorrt_rs_derive = { git = "https://github.com/mstallmo/tensorrt-rs", branch = "develop" }
+tensorrt-sys = { path = "../tensorrt-sys" }
+# tensorrt-sys = { git = "https://github.com/mstallmo/tensorrt-rs", branch = "develop" }
+tensorrt_rs_derive = { path = "../tensorrt_rs_derive" }
+# tensorrt_rs_derive = { git = "https://github.com/mstallmo/tensorrt-rs", branch = "develop" }
 ndarray = "0.13"
 ndarray-image = "0.2"
 image = "0.23"
