@@ -4,10 +4,10 @@ mod tests;
 use std::marker::PhantomData;
 
 use crate::builder_config::BuilderConfig;
+use crate::engine::HostMemory;
 use crate::network::Network;
 use crate::optimization_profile::OptimizationProfile;
 use crate::runtime::Logger;
-use crate::engine::HostMemory;
 use num_derive::FromPrimitive;
 
 use tensorrt_sys::*;
@@ -95,7 +95,13 @@ impl<'a> Builder<'a> {
     }
 
     pub fn serialize(&self, network: Network, config: BuilderConfig) -> HostMemory {
-        let memory = unsafe { builder_build_serialized_network(self.internal_builder, network.internal_network, config.internal_builder_config) };
+        let memory = unsafe {
+            builder_build_serialized_network(
+                self.internal_builder,
+                network.internal_network,
+                config.internal_builder_config,
+            )
+        };
         HostMemory { memory }
     }
 }

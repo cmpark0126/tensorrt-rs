@@ -7,11 +7,7 @@ pub struct OptimizationProfile {
 }
 
 impl OptimizationProfile {
-    pub fn set_min_dimensions<D: Dim>(
-        &self,
-        input_name: &str,
-        dims: D,
-    ) {
+    pub fn set_min_dimensions<D: Dim>(&self, input_name: &str, dims: D) {
         unsafe {
             optimization_profile_set_dimensions(
                 self.internal_optimization_profile,
@@ -22,11 +18,7 @@ impl OptimizationProfile {
         }
     }
 
-    pub fn set_opt_dimensions<D: Dim>(
-        &self,
-        input_name: &str,
-        dims: D,
-    ) {
+    pub fn set_opt_dimensions<D: Dim>(&self, input_name: &str, dims: D) {
         unsafe {
             optimization_profile_set_dimensions(
                 self.internal_optimization_profile,
@@ -37,11 +29,7 @@ impl OptimizationProfile {
         }
     }
 
-    pub fn set_max_dimensions<D: Dim>(
-        &self,
-        input_name: &str,
-        dims: D,
-    ) {
+    pub fn set_max_dimensions<D: Dim>(&self, input_name: &str, dims: D) {
         unsafe {
             optimization_profile_set_dimensions(
                 self.internal_optimization_profile,

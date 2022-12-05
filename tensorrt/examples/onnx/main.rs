@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use tensorrt_rs::builder::{Builder, NetworkBuildFlags};
 use tensorrt_rs::context::ExecuteInput;
 use tensorrt_rs::data_size::GB;
-use tensorrt_rs::dims::{Dims4, Dims3};
+use tensorrt_rs::dims::{Dims3, Dims4};
 use tensorrt_rs::engine::Engine;
 use tensorrt_rs::onnx::{OnnxFile, OnnxParser};
 use tensorrt_rs::runtime::{Logger, Runtime};
@@ -76,7 +76,10 @@ fn main() {
     for _ in 0..num_of_inference {
         let start = std::time::Instant::now();
         context
-            .executeV2(ExecuteInput::Float(&mut input), vec![ExecuteInput::Float(&mut output)])
+            .execute_v2(
+                ExecuteInput::Float(&mut input),
+                vec![ExecuteInput::Float(&mut output)],
+            )
             .unwrap();
         logs.push(start.elapsed());
     }
@@ -97,6 +100,6 @@ fn main() {
         "Latency P99: {:?}",
         logs[(num_of_inference as f32 * 0.99f32) as usize]
     );
-    
+
     println!("(post) output: {}", output);
 }

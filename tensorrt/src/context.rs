@@ -12,7 +12,8 @@ use std::ptr;
 use std::vec::Vec;
 use tensorrt_sys::{
     context_get_debug_sync, context_get_name, context_set_debug_sync, context_set_name,
-    context_set_profiler, destroy_excecution_context, execute, executeV2, nvinfer1_IExecutionContext,
+    context_set_profiler, destroy_excecution_context, execute, executeV2,
+    nvinfer1_IExecutionContext,
 };
 
 pub enum ExecuteInput<'a, D: Dimension> {
@@ -164,7 +165,7 @@ impl Context {
         Ok(())
     }
 
-    pub fn executeV2<D1: Dimension, D2: Dimension>(
+    pub fn execute_v2<D1: Dimension, D2: Dimension>(
         &self,
         input_data: ExecuteInput<D1>,
         mut output_data: Vec<ExecuteInput<D2>>,
