@@ -84,6 +84,7 @@ fn main() -> Result<(), ()> {
             .clang_arg("-DTRT8")
             .clang_args(&["-x", "c++"])
             .header("trt-sys/tensorrt_api.h")
+            .layout_tests(false)
             .size_t_is_usize(true)
             .generate()?;
 
