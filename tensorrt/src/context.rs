@@ -12,7 +12,7 @@ use std::ptr;
 use std::vec::Vec;
 use tensorrt_sys::{
     context_get_debug_sync, context_get_name, context_set_debug_sync, context_set_name,
-    context_set_profiler, destroy_excecution_context, execute, nvinfer1_IExecutionContext,
+    context_set_profiler, destroy_excecution_context, execute, executeV2, nvinfer1_IExecutionContext,
 };
 
 pub enum ExecuteInput<'a, D: Dimension> {
@@ -122,6 +122,7 @@ impl Context {
         &self,
         input_data: ExecuteInput<D1>,
         mut output_data: Vec<ExecuteInput<D2>>,
+        batch_size: i32,
     ) -> Result<(), Error> {
         let mut buffers = Vec::<DeviceBuffer>::with_capacity(output_data.len() + 1);
         let dev_buffer = match input_data {
@@ -146,7 +147,52 @@ impl Context {
             .collect::<Vec<*mut c_void>>();
 
         unsafe {
-            execute(self.internal_context, bindings.as_mut_ptr(), 1);
+            execute(self.internal_context, bindings.as_mut_ptr(), batch_size);
+        }
+
+        for (idx, output) in buffers.iter().skip(1).enumerate() {
+            let data = &mut output_data[idx];
+            match data {
+                ExecuteInput::Integer(val) => {
+                    output.copy_to_host(val)?;
+                }
+                ExecuteInput::Float(val) => {
+                    output.copy_to_host(val)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    pub fn executeV2<D1: Dimension, D2: Dimension>(
+        &self,
+        input_data: ExecuteInput<D1>,
+        mut output_data: Vec<ExecuteInput<D2>>,
+    ) -> Result<(), Error> {
+        let mut buffers = Vec::<DeviceBuffer>::with_capacity(output_data.len() + 1);
+        let dev_buffer = match input_data {
+            ExecuteInput::Integer(val) => DeviceBuffer::new(val)?,
+            ExecuteInput::Float(val) => DeviceBuffer::new(val)?,
+        };
+        buffers.push(dev_buffer);
+
+        for output in &output_data {
+            let device_buffer = match output {
+                ExecuteInput::Integer(val) => {
+                    DeviceBuffer::new_uninit(val.len() * size_of::<i32>())?
+                }
+                ExecuteInput::Float(val) => DeviceBuffer::new_uninit(val.len() * size_of::<f32>())?,
+            };
+            buffers.push(device_buffer);
+        }
+
+        let mut bindings = buffers
+            .iter()
+            .map(|elem| elem.as_mut_ptr())
+            .collect::<Vec<*mut c_void>>();
+
+        unsafe {
+            executeV2(self.internal_context, bindings.as_mut_ptr());
         }
 
         for (idx, output) in buffers.iter().skip(1).enumerate() {

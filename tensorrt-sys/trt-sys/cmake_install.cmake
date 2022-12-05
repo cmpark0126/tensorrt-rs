@@ -2,7 +2,7 @@
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/ubuntu/tensorrt-rs/target/debug/build/tensorrt-sys-8d9c23ad763a9cfb/out")
+  set(CMAKE_INSTALL_PREFIX "/home/ubuntu/tensorrt-rs/target/debug/build/tensorrt-sys-2b7b56462ab226ef/out")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

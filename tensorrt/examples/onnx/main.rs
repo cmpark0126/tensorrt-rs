@@ -28,7 +28,7 @@ fn create_engine(
     parser.parse_from_file(&file, verbosity).unwrap();
     drop(parser);
 
-    let dim = Dims4::new(max_batch_size, 224, 224, 3);
+    let dim = Dims4::new(max_batch_size, 3, 224, 224);
     network.get_input(0).set_dimensions(dim);
     // let input_name = network.get_input(0).get_name();
 
@@ -39,7 +39,7 @@ fn create_engine(
     // profile.set_max_dimensions(&input_name, Dims4::new(max_batch_size, 224, 224, 3));
     // config.add_optimization_profile(profile);
 
-    // config.set_max_workspace_size(workspace_size);
+    config.set_max_workspace_size(workspace_size);
 
     let binary = builder.serialize(network, config);
     let runtime = Runtime::new(logger);
@@ -50,27 +50,27 @@ fn create_engine(
 
 fn main() {
     let logger = Logger::new();
-    let file = OnnxFile::new(&PathBuf::from("../assets/efficientnet.onnx")).unwrap();
+    let file = OnnxFile::new(&PathBuf::from("../assets/resnet200.onnx")).unwrap();
     let engine = create_engine(&logger, file, vec![1], 1 * GB);
     let context = engine.create_execution_context();
 
     let input_image = image::open("../assets/images/meme.jpg")
         .unwrap()
-        .crop(0, 0, 100, 100)
+        .crop(0, 0, 224, 224)
         .into_rgb8();
     eprintln!("Image dimensions: {:?}", input_image.dimensions());
 
     // Convert image to ndarray
     let array: ndarray_image::NdColor = ndarray_image::NdImage(&input_image).into();
     println!("NdArray len: {}", array.len());
-
     let mut pre_processed = Array::from_iter(array.iter().map(|&x| 1.0 - (x as f32) / 255.0));
 
     // Run inference
     let mut output = ndarray::Array1::<f32>::zeros(1000);
+    println!("(pre) output: {}", output);
     let outputs = vec![ExecuteInput::Float(&mut output)];
     context
-        .execute(ExecuteInput::Float(&mut pre_processed), outputs)
+        .executeV2(ExecuteInput::Float(&mut pre_processed), outputs)
         .unwrap();
-    println!("output: {}", output);
+    println!("(post) output: {}", output);
 }

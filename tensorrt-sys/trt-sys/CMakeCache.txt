@@ -105,7 +105,7 @@ CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=OFF
 
 //Install path prefix, prepended onto install directories.
-CMAKE_INSTALL_PREFIX:PATH=/home/ubuntu/tensorrt-rs/target/debug/build/tensorrt-sys-8d9c23ad763a9cfb/out
+CMAKE_INSTALL_PREFIX:PATH=/home/ubuntu/tensorrt-rs/target/debug/build/tensorrt-sys-2b7b56462ab226ef/out
 
 //Path to a program.
 CMAKE_LINKER:FILEPATH=/usr/bin/ld
