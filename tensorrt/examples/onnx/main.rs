@@ -70,8 +70,33 @@ fn main() {
     let mut output = ndarray::Array1::<f32>::zeros(1000);
     println!("(pre) input: {}", input);
     println!("(pre) output: {}", output);
-    context
-        .executeV2(ExecuteInput::Float(&mut input), vec![ExecuteInput::Float(&mut output)])
-        .unwrap();
+
+    let mut logs = Vec::new();
+    let num_of_inference = 1000;
+    for _ in 0..num_of_inference {
+        let start = std::time::Instant::now();
+        context
+            .executeV2(ExecuteInput::Float(&mut input), vec![ExecuteInput::Float(&mut output)])
+            .unwrap();
+        logs.push(start.elapsed());
+    }
+    logs.sort();
+    println!(
+        "Latency P50: {:?}",
+        logs[(num_of_inference as f32 * 0.50f32) as usize]
+    );
+    println!(
+        "Latency P90: {:?}",
+        logs[(num_of_inference as f32 * 0.90f32) as usize]
+    );
+    println!(
+        "Latency P95: {:?}",
+        logs[(num_of_inference as f32 * 0.95f32) as usize]
+    );
+    println!(
+        "Latency P99: {:?}",
+        logs[(num_of_inference as f32 * 0.99f32) as usize]
+    );
+    
     println!("(post) output: {}", output);
 }
