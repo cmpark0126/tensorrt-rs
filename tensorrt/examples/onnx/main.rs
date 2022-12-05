@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use tensorrt_rs::builder::{Builder, NetworkBuildFlags};
 use tensorrt_rs::context::ExecuteInput;
 use tensorrt_rs::data_size::GB;
-use tensorrt_rs::dims::{Dims2, Dims4};
+use tensorrt_rs::dims::Dims4;
 use tensorrt_rs::engine::Engine;
 use tensorrt_rs::onnx::{OnnxFile, OnnxParser};
 use tensorrt_rs::runtime::{Logger, Runtime};
@@ -34,9 +34,9 @@ fn create_engine(
 
     let config = builder.create_builder_config();
     // let profile = builder.create_optimization_profile();
-    // profile.set_min_dimensions(&input_name, Dims4::new(1, 224, 224, 3));
-    // profile.set_opt_dimensions(&input_name, Dims4::new(1, 224, 224, 3));
-    // profile.set_max_dimensions(&input_name, Dims4::new(max_batch_size, 224, 224, 3));
+    // profile.set_min_dimensions(&input_name, Dims4::new(1, 3, 224, 224));
+    // profile.set_opt_dimensions(&input_name, Dims4::new(1, 3, 224, 224));
+    // profile.set_max_dimensions(&input_name, Dims4::new(max_batch_size, 3, 224, 224));
     // config.add_optimization_profile(profile);
 
     config.set_max_workspace_size(workspace_size);
@@ -70,6 +70,7 @@ fn main() {
     let mut pre_processed = Array::from_iter(array.iter().map(|&x| 1.0 - (x as f32) / 255.0));
 
     // Run inference
+    // let mut pre_processed = ndarray::Array3::<f32>::ones((3, 224, 224));
     let mut output = ndarray::Array1::<f32>::zeros(1000);
     println!("(pre) input: {}", pre_processed);
     println!("(pre) output: {}", output);
