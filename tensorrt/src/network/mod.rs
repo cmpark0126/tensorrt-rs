@@ -1,6 +1,6 @@
 pub mod layer;
 
-use crate::dims::{Dim};
+use crate::dims::Dim;
 use crate::engine::DataType;
 use layer::*;
 use std::ffi::{CStr, CString};

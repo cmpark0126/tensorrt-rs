@@ -12,7 +12,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-nvinfer1::ICudaEngine *build_cuda_engine(nvinfer1::IBuilder *builder, nvinfer1::INetworkDefinition *network);
 nvinfer1::IBuilder *create_infer_builder(Logger_t *logger);
 void destroy_builder(nvinfer1::IBuilder* builder);
 void builder_set_max_batch_size(nvinfer1::IBuilder* builder, int32_t batch_size);
@@ -22,5 +21,8 @@ bool builder_platform_has_fast_int8(nvinfer1::IBuilder* builder);
 int builder_get_max_dla_batch_size(nvinfer1::IBuilder* builder);
 int builder_get_nb_dla_cores(nvinfer1::IBuilder* builder);
 nvinfer1::INetworkDefinition *create_network_v2(nvinfer1::IBuilder* builder, uint32_t flags);
+nvinfer1::IBuilderConfig *create_builder_config(nvinfer1::IBuilder* builder);
+nvinfer1::IOptimizationProfile* create_optimization_profile(nvinfer1::IBuilder* builder);
+nvinfer1::IHostMemory* builder_build_serialized_network(nvinfer1::IBuilder* builder, nvinfer1::INetworkDefinition* network, nvinfer1::IBuilderConfig* config);
 
 #endif //LIBTRT_TRTBUILDER_H

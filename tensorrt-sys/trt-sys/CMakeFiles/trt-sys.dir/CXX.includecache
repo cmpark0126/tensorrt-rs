@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ubuntu/tensorrt-rs/tensorrt-sys/trt-sys/TRTOptimizationProfile/TRTOptimizationProfile.cpp
+memory
+-
+NvInfer.h
+-
+

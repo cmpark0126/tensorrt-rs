@@ -45,3 +45,15 @@ void destroy_builder(nvinfer1::IBuilder* builder) {
 nvinfer1::INetworkDefinition *create_network_v2(nvinfer1::IBuilder *builder, uint32_t flags) {
     return builder->createNetworkV2(flags);
 }
+
+nvinfer1::IBuilderConfig *create_builder_config(nvinfer1::IBuilder* builder) {
+    return builder->createBuilderConfig();
+}
+
+nvinfer1::IOptimizationProfile* create_optimization_profile(nvinfer1::IBuilder* builder) {
+    return builder->createOptimizationProfile();
+}
+
+nvinfer1::IHostMemory* builder_build_serialized_network(nvinfer1::IBuilder* builder, nvinfer1::INetworkDefinition* network, nvinfer1::IBuilderConfig* config) {
+    return builder->buildSerializedNetwork(*network, *config);
+}

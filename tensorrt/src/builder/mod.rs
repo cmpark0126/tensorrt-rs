@@ -3,11 +3,12 @@ mod tests;
 
 use std::marker::PhantomData;
 
-use crate::engine::Engine;
+use crate::builder_config::BuilderConfig;
 use crate::network::Network;
+use crate::optimization_profile::OptimizationProfile;
 use crate::runtime::Logger;
+use crate::engine::HostMemory;
 use num_derive::FromPrimitive;
-use tensorrt_sys::create_network_v2;
 
 use tensorrt_sys::*;
 
@@ -78,10 +79,24 @@ impl<'a> Builder<'a> {
         Network { internal_network }
     }
 
-    pub fn build_cuda_engine(&self, network: &Network) -> Engine {
-        let internal_engine =
-            unsafe { build_cuda_engine(self.internal_builder, network.internal_network) };
-        Engine { internal_engine }
+    pub fn create_builder_config(&self) -> BuilderConfig {
+        let internal_builder_config = unsafe { create_builder_config(self.internal_builder) };
+        BuilderConfig {
+            internal_builder_config,
+        }
+    }
+
+    pub fn create_optimization_profile(&self) -> OptimizationProfile {
+        let internal_optimization_profile =
+            unsafe { create_optimization_profile(self.internal_builder) };
+        OptimizationProfile {
+            internal_optimization_profile,
+        }
+    }
+
+    pub fn serialize(&self, network: Network, config: BuilderConfig) -> HostMemory {
+        let memory = unsafe { builder_build_serialized_network(self.internal_builder, network.internal_network, config.internal_builder_config) };
+        HostMemory { memory }
     }
 }
 

@@ -40,4 +40,4 @@ lazy_static = "1.4"
 
 [[example]]
 name = "onnx"
-required-features = ["trt-7"]
+required-features = ["trt-8"]
