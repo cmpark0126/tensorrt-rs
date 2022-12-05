@@ -13,13 +13,11 @@ use tensorrt_rs::runtime::{Logger, Runtime};
 fn create_engine(
     logger: &Logger,
     file: OnnxFile,
-    batch_sizes: Vec<i32>,
+    batch_size: i32,
     workspace_size: usize,
 ) -> Engine {
-    let max_batch_size = *batch_sizes.iter().max().unwrap();
-
     let builder = Builder::new(logger);
-    builder.set_max_batch_size(max_batch_size);
+    builder.set_max_batch_size(batch_size);
 
     let network = builder.create_network_v2(NetworkBuildFlags::EXPLICIT_BATCH);
     let verbosity = 7;
@@ -28,16 +26,11 @@ fn create_engine(
     parser.parse_from_file(&file, verbosity).unwrap();
     drop(parser);
 
-    let dim = Dims4::new(max_batch_size, 3, 224, 224);
+    let dim = Dims4::new(batch_size, 3, 224, 224);
     network.get_input(0).set_dimensions(dim);
     let input_name = network.get_input(0).get_name();
 
     let config = builder.create_builder_config();
-    // let profile = builder.create_optimization_profile();
-    // profile.set_min_dimensions(&input_name, Dims4::new(1, 3, 224, 224));
-    // profile.set_opt_dimensions(&input_name, Dims4::new(1, 3, 224, 224));
-    // profile.set_max_dimensions(&input_name, Dims4::new(max_batch_size, 3, 224, 224));
-    // config.add_optimization_profile(profile);
 
     config.set_max_workspace_size(workspace_size);
 
@@ -52,26 +45,28 @@ fn create_engine(
 }
 
 fn main() {
+    let batch_size = 1;
+
     let logger = Logger::new();
     let file = OnnxFile::new(&PathBuf::from("../assets/resnet200.onnx")).unwrap();
-    let engine = create_engine(&logger, file, vec![1], 1 * GB);
+    let engine = create_engine(&logger, file, batch_size, 1 * GB);
 
     let context = engine.create_execution_context();
 
-    let input_image = image::open("../assets/images/meme.jpg")
-        .unwrap()
-        .crop(0, 0, 224, 224)
-        .into_rgb8();
-    eprintln!("Image dimensions: {:?}", input_image.dimensions());
+    // let input_image = image::open("../assets/images/meme.jpg")
+    //     .unwrap()
+    //     .crop(0, 0, 224, 224)
+    //     .into_rgb8();
+    // eprintln!("Image dimensions: {:?}", input_image.dimensions());
 
-    // Convert image to ndarray
-    let array: ndarray_image::NdColor = ndarray_image::NdImage(&input_image).into();
-    println!("NdArray len: {}", array.len());
-    let mut pre_processed = Array::from_iter(array.iter().map(|&x| 1.0 - (x as f32) / 255.0));
+    // // Convert image to ndarray
+    // let array: ndarray_image::NdColor = ndarray_image::NdImage(&input_image).into();
+    // println!("NdArray len: {}", array.len());
+    // let mut pre_processed = Array::from_iter(array.iter().map(|&x| 1.0 - (x as f32) / 255.0));
 
     // Run inference
-    // let mut pre_processed = ndarray::Array3::<f32>::ones((3, 224, 224));
-    let mut output = ndarray::Array1::<f32>::zeros(1000);
+    let mut pre_processed = ndarray::Array4::<f32>::ones((batch_size as usize, 3, 224, 224));
+    let mut output = ndarray::Array2::<f32>::zeros((batch_size as usize, 1000));
     println!("(pre) input: {}", pre_processed);
     println!("(pre) output: {}", output);
 
