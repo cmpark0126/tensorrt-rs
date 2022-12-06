@@ -29,7 +29,7 @@ fn create_engine(
 
     let dim = Dims4::new(batch_size, 3, 224, 224);
     network.get_input(0).set_dimensions(dim);
-    let input_name = network.get_input(0).get_name();
+    // let input_name = network.get_input(0).get_name();
 
     let config = builder.create_builder_config();
 
