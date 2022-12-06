@@ -20,10 +20,10 @@ trt-8 = ["tensorrt-sys/trt-8"]
 
 [dependencies]
 # Uncomment when working locally
-tensorrt-sys = { path = "../tensorrt-sys" }
-# tensorrt-sys = { git = "https://github.com/mstallmo/tensorrt-rs", branch = "develop" }
-tensorrt_rs_derive = { path = "../tensorrt_rs_derive" }
-# tensorrt_rs_derive = { git = "https://github.com/mstallmo/tensorrt-rs", branch = "develop" }
+#tensorrt-sys = { path = "../tensorrt-sys" }
+tensorrt-sys = { git = "https://github.com/cmpark0126/tensorrt-rs.git", branch="support-trt8_4_1_5" }
+#tensorrt_rs_derive = { path = "../tensorrt_rs_derive" }
+tensorrt_rs_derive = { git = "https://github.com/cmpark0126/tensorrt-rs.git", branch="support-trt8_4_1_5" }
 ndarray = "0.13"
 ndarray-image = "0.2"
 image = "0.23"
