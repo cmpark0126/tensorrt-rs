@@ -15,7 +15,8 @@ fn create_engine(
     file: OnnxFile,
     batch_size: i32,
     workspace_size: usize,
-) -> Engine {
+    engine_file: &PathBuf,
+) {
     let builder = Builder::new(logger);
     builder.set_max_batch_size(batch_size);
 
@@ -35,23 +36,27 @@ fn create_engine(
     config.set_max_workspace_size(workspace_size);
 
     let binary = builder.serialize(network, config);
-    let runtime = Runtime::new(logger);
-    let engine = runtime.deserialize_cuda_engine(binary.data().to_vec());
-
-    let input_indice = engine.get_binding_index(&input_name).unwrap();
-    println!("{:?}'s indice is {}", input_name, input_indice);
-
-    engine
+    let binary = binary.data().to_vec();
+    std::fs::write(engine_file, binary).unwrap();
 }
 
 fn main() {
     let batch_size = 1;
-
+    let engine_file = PathBuf::from("../assets/resnet200-b1.engine");
     let logger = Logger::new();
-    let file = OnnxFile::new(&PathBuf::from("../assets/resnet200.onnx")).unwrap();
-    let engine = create_engine(&logger, file, batch_size, 1 * GB);
+    if !std::path::Path::new(&engine_file).exists() {
+        let onnx_file = PathBuf::from("../assets/resnet200.onnx");
+        let file = OnnxFile::new(&onnx_file).unwrap();
+        create_engine(&logger, file, batch_size, 1 * GB, &engine_file);
+    }
 
+    let runtime = Runtime::new(&logger);
+    let binary = std::fs::read(engine_file).unwrap();
+    let engine = runtime.deserialize_cuda_engine(binary);
     let context = engine.create_execution_context();
+
+    // let input_indice = engine.get_binding_index(&input_name).unwrap();
+    // println!("{:?}'s indice is {}", input_name, input_indice);
 
     // let input_image = image::open("../assets/images/meme.jpg")
     //     .unwrap()
