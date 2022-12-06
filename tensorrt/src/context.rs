@@ -23,6 +23,7 @@ pub enum ExecuteInput<'a, D: Dimension> {
 
 struct DeviceBuffer {
     device_ptr: *mut c_void,
+    byte_size: usize,
 }
 
 impl DeviceBuffer {
@@ -40,13 +41,36 @@ impl DeviceBuffer {
             cudaMemcpyKind::cudaMemcpyHostToDevice,
         ));
 
-        Ok(DeviceBuffer { device_ptr })
+        Ok(DeviceBuffer {
+            device_ptr,
+            byte_size: host_data.len() * size_of::<T>(),
+        })
     }
 
-    pub fn new_uninit(size: usize) -> Result<Self, Error> {
+    pub fn new_from_raw(host_data: *const u8, byte_size: usize) -> Result<Self, Error> {
         let mut device_ptr: *mut c_void = ptr::null_mut();
-        check_cuda!(cudaMalloc(&mut device_ptr, size));
-        Ok(DeviceBuffer { device_ptr })
+        check_cuda!(cudaMalloc(&mut device_ptr, byte_size));
+
+        check_cuda!(cudaMemcpy(
+            device_ptr,
+            host_data as *const c_void,
+            byte_size,
+            cudaMemcpyKind::cudaMemcpyHostToDevice,
+        ));
+
+        Ok(DeviceBuffer {
+            device_ptr,
+            byte_size,
+        })
+    }
+
+    pub fn new_uninit(byte_size: usize) -> Result<Self, Error> {
+        let mut device_ptr: *mut c_void = ptr::null_mut();
+        check_cuda!(cudaMalloc(&mut device_ptr, byte_size));
+        Ok(DeviceBuffer {
+            device_ptr,
+            byte_size,
+        })
     }
 
     pub fn as_mut_ptr(&self) -> *mut c_void {
@@ -57,10 +81,26 @@ impl DeviceBuffer {
         &self,
         host_data: &mut ndarray::Array<T, D>,
     ) -> Result<(), Error> {
+        assert_eq!(self.byte_size, host_data.len() * size_of::<T>());
         check_cuda!(cudaMemcpy(
             host_data.as_mut_ptr() as *mut c_void,
             self.device_ptr,
             host_data.len() * size_of::<T>(),
+            cudaMemcpyKind::cudaMemcpyDeviceToHost,
+        ));
+        Ok(())
+    }
+
+    pub fn copy_to_raw(
+        &self,
+        host_data: *mut u8,
+        byte_size: usize,
+    ) -> Result<(), Error> {
+        assert_eq!(self.byte_size, byte_size);
+        check_cuda!(cudaMemcpy(
+            host_data as *mut c_void,
+            self.device_ptr,
+            byte_size,
             cudaMemcpyKind::cudaMemcpyDeviceToHost,
         ));
         Ok(())
@@ -206,6 +246,38 @@ impl Context {
                     output.copy_to_host(val)?;
                 }
             }
+        }
+        Ok(())
+    }
+
+    pub fn execute_v2_with_raw(
+        &self,
+        input_raw_and_size: (*const u8, usize),
+        mut output_raw_and_size: Vec<(*mut u8, usize)>,
+    ) -> Result<(), Error> {
+        let mut buffers = Vec::<DeviceBuffer>::with_capacity(output_raw_and_size.len() + 1);
+
+        let (input_data, input_byte_size) = input_raw_and_size;
+        let device_buffer = DeviceBuffer::new_from_raw(input_data, input_byte_size)?;
+        buffers.push(device_buffer);
+
+        for (_, output_byte_size) in &output_raw_and_size {
+            let device_buffer = DeviceBuffer::new_uninit(*output_byte_size)?;
+            buffers.push(device_buffer);
+        }
+
+        let mut bindings = buffers
+            .iter()
+            .map(|elem| elem.as_mut_ptr())
+            .collect::<Vec<*mut c_void>>();
+
+        unsafe {
+            executeV2(self.internal_context, bindings.as_mut_ptr());
+        }
+
+        for (idx, output) in buffers.iter().skip(1).enumerate() {
+            let (data, byte_size) = output_raw_and_size[idx].clone();
+            output.copy_to_raw(data, byte_size)?;
         }
         Ok(())
     }
