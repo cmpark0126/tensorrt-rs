@@ -50,7 +50,7 @@ fn main() {
         create_engine(&logger, file, batch_size, 1 * GB, &engine_file);
     }
 
-    let runtime = Runtime::new(&logger);
+    let runtime = Runtime::new(logger);
     let binary = std::fs::read(engine_file).unwrap();
     let engine = runtime.deserialize_cuda_engine(binary);
     let context = engine.create_execution_context();

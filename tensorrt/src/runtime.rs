@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use crate::engine::Engine;
 use bitflags::_core::ffi::c_void;
 use tensorrt_sys::{
@@ -47,18 +45,18 @@ impl Drop for Logger {
 }
 
 #[derive(Clone)]
-pub struct Runtime<'a> {
+pub struct Runtime {
     pub(crate) internal_runtime: *mut nvinfer1_IRuntime,
-    pub(crate) logger: PhantomData<&'a Logger>,
+    pub(crate) internal_logger: *mut tensorrt_sys::Logger_t,
 }
 
-impl<'a> Runtime<'a> {
-    pub fn new(logger: &'a Logger) -> Self {
+impl Runtime {
+    pub fn new(logger: Logger) -> Self {
         let internal_runtime = unsafe { create_infer_runtime(logger.internal_logger) };
-        let logger = PhantomData;
+        let logger = std::mem::ManuallyDrop::new(logger);
         Self {
             internal_runtime,
-            logger,
+            internal_logger: logger.internal_logger,
         }
     }
 
@@ -87,56 +85,57 @@ impl<'a> Runtime<'a> {
     }
 }
 
-impl<'a> Drop for Runtime<'a> {
+impl Drop for Runtime {
     fn drop(&mut self) {
         unsafe { destroy_infer_runtime(self.internal_runtime) };
+        unsafe { delete_logger(self.internal_logger) };
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use lazy_static::lazy_static;
-    use std::sync::Mutex;
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use lazy_static::lazy_static;
+//     use std::sync::Mutex;
 
-    lazy_static! {
-        static ref LOGGER: Mutex<Logger> = Mutex::new(Logger::new());
-    }
+//     lazy_static! {
+//         static ref LOGGER: Mutex<Logger> = Mutex::new(Logger::new());
+//     }
 
-    #[test]
-    fn get_nb_dla_cores() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
+//     #[test]
+//     fn get_nb_dla_cores() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
 
-        let runtime = Runtime::new(&logger);
+//         let runtime = Runtime::new(logger);
 
-        assert_eq!(runtime.get_nb_dla_cores(), 0);
-    }
+//         assert_eq!(runtime.get_nb_dla_cores(), 0);
+//     }
 
-    #[test]
-    fn get_dla_core() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
+//     #[test]
+//     fn get_dla_core() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
 
-        let runtime = Runtime::new(&logger);
+//         let runtime = Runtime::new(logger);
 
-        assert_eq!(runtime.get_dla_core(), 0);
-    }
+//         assert_eq!(runtime.get_dla_core(), 0);
+//     }
 
-    #[cfg(target_arch = "aarch64")]
-    #[test]
-    fn set_dla_core() {
-        let logger = match LOGGER.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
+//     #[cfg(target_arch = "aarch64")]
+//     #[test]
+//     fn set_dla_core() {
+//         let logger = match LOGGER.lock() {
+//             Ok(guard) => guard,
+//             Err(poisoned) => poisoned.into_inner(),
+//         };
 
-        let runtime = Runtime::new(&logger);
-        runtime.set_dla_core(1);
-        assert_eq!(runtime.get_dla_core(), 1);
-    }
-}
+//         let runtime = Runtime::new(&logger);
+//         runtime.set_dla_core(1);
+//         assert_eq!(runtime.get_dla_core(), 1);
+//     }
+// }
