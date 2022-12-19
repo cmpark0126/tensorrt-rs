@@ -17,6 +17,6 @@ CppProfiler::~CppProfiler() {
     (*profiler->destroy)(profiler, profiler->context);
 }
 
-void CppProfiler::reportLayerTime(const char *layerName, float ms) {
+void CppProfiler::reportLayerTime(const char *layerName, float ms) noexcept {
     (*profiler->reportLayerTime)(profiler->context, layerName, ms);
 }

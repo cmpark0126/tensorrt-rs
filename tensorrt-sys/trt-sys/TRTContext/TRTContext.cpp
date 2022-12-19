@@ -60,3 +60,7 @@ void context_set_profiler(nvinfer1::IExecutionContext *context, CppProfiler* pro
 void execute(nvinfer1::IExecutionContext *execution_context, void **buffers, int batch_size) {
     execution_context->execute(batch_size, &buffers[0]);
 }
+
+void executeV2(nvinfer1::IExecutionContext *execution_context, void **buffers) {
+    execution_context->executeV2(&buffers[0]);
+}

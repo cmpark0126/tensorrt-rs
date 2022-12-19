@@ -41,10 +41,6 @@ int engine_get_nb_layers(nvinfer1::ICudaEngine *engine) {
     return engine->getNbLayers();
 }
 
-size_t engine_get_workspace_size(nvinfer1::ICudaEngine *engine) {
-    return engine->getWorkspaceSize();
-}
-
 nvinfer1::IExecutionContext* engine_create_execution_context(nvinfer1::ICudaEngine *engine) {
     return engine->createExecutionContext();
 }

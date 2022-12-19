@@ -25,10 +25,12 @@ file(GLOB source_files
         "TRTOnnxParser/*.cpp"
         "TRTDims/*.cpp"
         "TRTBuilder/*.cpp"
+        "TRTBuilderConfig/*.cpp"
         "TRTNetworkDefinition/*.cpp"
         "TRTHostMemory/*.cpp"
         "TRTLayer/*.cpp"
         "TRTTensor/*.cpp"
+        "TRTOptimizationProfile/*.cpp"
         "TRTProfiler/*.cpp"
 )
 

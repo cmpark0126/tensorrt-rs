@@ -26,6 +26,7 @@ void context_set_profiler(nvinfer1::IExecutionContext* execution_context, CppPro
 //Profiler_t* context_get_profiler(Context_t *execution_context);
 
 void execute(nvinfer1::IExecutionContext* execution_context, void** buffers, int batch_size);
+void executeV2(nvinfer1::IExecutionContext* execution_context, void** buffers);
 
 
 #endif //LIBTRT_TRTCONTEXT_H

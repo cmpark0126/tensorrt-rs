@@ -15,7 +15,7 @@ public:
             : mReportableSeverity(severity) {
     }
 
-    void log(nvinfer1::ILogger::Severity severity, const char *msg) final {
+    void log(nvinfer1::ILogger::Severity severity, const char *msg) noexcept {
         if (severity <= mReportableSeverity)
             printf("%s\n", msg);
     }
